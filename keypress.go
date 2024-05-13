@@ -10,7 +10,7 @@ import (
 type KeyPressEvent struct {
 	KeyDisplay string
 	// WhenMS is the time in milliseconds when the key was pressed starting from the beginning of the video (t=0).
-	WhenMS uint
+	WhenMS uint64
 }
 
 /**
@@ -28,8 +28,8 @@ func parseKeyPressEvents(cmds []parser.Command) ([]KeyPressEvent, error) {
 	keyPressEvents := make([]KeyPressEvent, 0, len(cmds))
 	// t tracks the current time (in milliseconds) in the current
 	// demo.
-	var t uint = 0
-	var typeSpeedMs uint = 50 // Default.
+	var t uint64 = 0
+	var typeSpeedMs uint64 = 50 // Default.
 	// var playbackSpeed float64 = 1.0 // Default.
 	for i := range cmds {
 		// TODO: I think type events can include a time too, but we have no idea what that means yet and therefore how to handle
@@ -77,7 +77,7 @@ func parseKeyPressEvents(cmds []parser.Command) ([]KeyPressEvent, error) {
 			if err != nil {
 				return nil, err
 			}
-			t += uint(tArg.Milliseconds())
+			t += uint64(tArg.Milliseconds())
 		}
 	}
 
