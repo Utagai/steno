@@ -1,6 +1,12 @@
 # `steno`
 
-`steno` is a small binary that is meant to be used with [`vhs`](https://github.com/charmbracelet/vhs) tapes and recording videos. The idea is that `steno` acts as a stenographer for your `vhs` recordings. You give it your `.tape` file and the output `.mp4` video, and it will output a video file with your keypresses overlayed on the video. See the two examples below to get a better sense of what it is that `steno` does:
+`steno` is a Go program that is meant to be used with [`vhs`](https://github.com/charmbracelet/vhs) tapes and recording videos. The idea is that `steno` acts as a stenographer for your `vhs` recordings. You give it your `.tape` file and the output `.mp4` video, and it will output a video file with your keypresses overlayed on the video. See the two examples below to get a better sense of what it is that `steno` does:
+
+| Original `vhs` Recording | `steno` Post-Processed Recording |
+| -------- | -------- |
+| ![demo](https://github.com/Utagai/steno/assets/10730394/66a636c3-9241-490a-8c32-995a2034d0ec) | ![output](https://github.com/Utagai/steno/assets/10730394/cf06ab95-76ac-43af-8f56-e97e6bdf85c7) |
+
+The above comparison demonstrations were made using my project, [`jam`](https://github.com/utagai/jam) and its `vhs` recording!
 
 ## Warnings
 
