@@ -34,7 +34,7 @@ func main() {
 
 	stenoCmd := &cobra.Command{
 		Use:   "steno [tape file] [recording file]",
-		Short: "Inject keypress overlay onto a charmebracelet vhs recording",
+		Short: "Inject keypress overlay onto a charmbracelet vhs recording",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := slog.New(slog.NewTextHandler(io.Discard, nil))
