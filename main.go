@@ -52,6 +52,7 @@ type Options struct {
 	fontSize   int
 	fontColor  string
 	outputFile string
+	noSymbols  bool
 	verbose    bool
 }
 
@@ -61,7 +62,7 @@ func run(logger *slog.Logger, tapeFile, recordingFile string, opts Options) erro
 		return fmt.Errorf("could not parse tape: %w", err)
 	}
 
-	kpes, err := parseKeyPressEvents(cmds)
+	kpes, err := parseKeyPressEvents(cmds, opts.noSymbols)
 	if err != nil {
 		return fmt.Errorf("could not parse key press events: %w", err)
 	}
@@ -119,6 +120,7 @@ func main() {
 	stenoCmd.Flags().StringVarP(&opts.fontColor, "color", "c", "white", "Font color for ffmpeg")
 	stenoCmd.Flags().StringVarP(&opts.outputFile, "output", "o", "output.mp4", "Output file to write to")
 	stenoCmd.Flags().BoolVarP(&opts.verbose, "verbose", "v", false, "Enable logging")
+	stenoCmd.Flags().BoolVar(&opts.noSymbols, "no-special-symbols", false, "Enable special symbols for keypresses")
 
 	stenoCmd.Execute()
 }
