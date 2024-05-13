@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"time"
 
+	"github.com/charmbracelet/vhs/pkg/lexer"
 	"github.com/charmbracelet/vhs/pkg/parser"
 	"github.com/charmbracelet/vhs/pkg/token"
 )
@@ -92,7 +95,12 @@ var keypressSymbols = map[token.Type]map[bool]string{
 	},
 }
 
-func parseKeyPressEvents(cmds []parser.Command, noSymbol bool) ([]KeyPressEvent, error) {
+func parseKeyPressEvents(tapeFile string, noSymbol bool) ([]KeyPressEvent, error) {
+	cmds, err := parseCmds(tapeFile)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse tape: %w", err)
+	}
+
 	keyPressEvents := make([]KeyPressEvent, 0, len(cmds))
 	// t tracks the current time (in milliseconds) in the current
 	// demo.
@@ -154,4 +162,16 @@ func parseKeyPressEvents(cmds []parser.Command, noSymbol bool) ([]KeyPressEvent,
 	}
 
 	return keyPressEvents, nil
+}
+
+func parseCmds(tapeFile string) ([]parser.Command, error) {
+	tapeBuf, err := os.ReadFile(tapeFile)
+	if err != nil {
+		return nil, fmt.Errorf("could not read file: %v", err)
+	}
+	l := lexer.New(string(tapeBuf))
+	p := parser.New(l)
+	cmds := p.Parse()
+
+	return cmds, nil
 }

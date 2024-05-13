@@ -5,26 +5,11 @@ import (
 	"io"
 	"log/slog"
 	"math"
-	"os"
 
-	"github.com/charmbracelet/vhs/pkg/lexer"
-	"github.com/charmbracelet/vhs/pkg/parser"
 	"github.com/spf13/cobra"
 
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
-
-func parseCmds(tapeFile string) ([]parser.Command, error) {
-	tapeBuf, err := os.ReadFile(tapeFile)
-	if err != nil {
-		return nil, fmt.Errorf("could not read file: %v", err)
-	}
-	l := lexer.New(string(tapeBuf))
-	p := parser.New(l)
-	cmds := p.Parse()
-
-	return cmds, nil
-}
 
 func writeOverlay(stream *ffmpeg.Stream, draw DrawCall, xPos, yPos string, opts Options) *ffmpeg.Stream {
 	enableFilter := fmt.Sprintf("between(t,%f,%f)", draw.start, draw.end)
@@ -61,12 +46,7 @@ type Options struct {
 }
 
 func run(logger *slog.Logger, tapeFile, recordingFile string, opts Options) error {
-	cmds, err := parseCmds(tapeFile)
-	if err != nil {
-		return fmt.Errorf("could not parse tape: %w", err)
-	}
-
-	kpes, err := parseKeyPressEvents(cmds, opts.noSymbols)
+	kpes, err := parseKeyPressEvents(tapeFile, opts.noSymbols)
 	if err != nil {
 		return fmt.Errorf("could not parse key press events: %w", err)
 	}
