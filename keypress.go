@@ -42,11 +42,11 @@ var keypressSymbols = map[token.Type]map[bool]string{
 		false: "␡",
 	},
 	token.CTRL: {
-		true:  "<CTRL>",
+		true:  "<CTRL>+",
 		false: "C-",
 	},
 	token.ALT: {
-		true:  "<ALT>",
+		true:  "<ALT>+",
 		false: "⎇-",
 	},
 	token.DOWN: {
@@ -79,7 +79,7 @@ var keypressSymbols = map[token.Type]map[bool]string{
 	},
 	token.ENTER: {
 		true:  "<ENTER>",
-		false: "↵",
+		false: "⏎",
 	},
 	token.ESCAPE: {
 		true:  "<ESCAPE>",
@@ -95,6 +95,18 @@ var keypressSymbols = map[token.Type]map[bool]string{
 	},
 }
 
+// NOTE: This function is implemented based on mostly just my observations.
+// There are some aspects of it that I think are likely incorrect. For example,
+// I only apply the typing speed increment on certain key presses, namely Type
+// keys and Space. In my testing, this seems to perform correctly but the only
+// way to be absolutely certain is to read through vhs' source code more
+// carefully. I could do this, but to be honest, that's a lot of work for a
+// project that exists namely to just help another project, and an understanding
+// gained this way is brittle and prone to break when vhs internals change.
+// This does however suggest that perhaps the true best way to implement the
+// purpose of this program is to build it into vhs, but introducing that
+// complexity (and dependencies) to vhs is not really desirable either.
+// :shrug:
 func parseKeyPressEvents(tapeFile string, noSymbol bool) ([]KeyPressEvent, error) {
 	cmds, err := parseCmds(tapeFile)
 	if err != nil {
@@ -134,6 +146,7 @@ func parseKeyPressEvents(tapeFile string, noSymbol bool) ([]KeyPressEvent, error
 			keyPressEvents = append(keyPressEvents, KeyPressEvent{KeyDisplay: keypressSymbols[token.RIGHT][noSymbol], WhenMS: t})
 		case token.SPACE:
 			keyPressEvents = append(keyPressEvents, KeyPressEvent{KeyDisplay: keypressSymbols[token.SPACE][noSymbol], WhenMS: t})
+			t += typeSpeedMs
 		case token.ENTER:
 			keyPressEvents = append(keyPressEvents, KeyPressEvent{KeyDisplay: keypressSymbols[token.ENTER][noSymbol], WhenMS: t})
 		case token.ESCAPE:
