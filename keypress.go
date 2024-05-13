@@ -139,6 +139,10 @@ func parseKeyPressEvents(cmds []parser.Command, noSymbol bool) ([]KeyPressEvent,
 				keyPressEvents = append(keyPressEvents, KeyPressEvent{KeyDisplay: string(r), WhenMS: t})
 				t += typeSpeedMs
 			}
+			// Subtract away typeSpeedMs one more time at the end, since there is no delay _after_ the last character is typed.
+			// NOTE: I _think_ vhs doesn't introduce an initial delay before typing the first character either. If they did,
+			// then I think the simpler thing is to move the increment in the loop to _before_ the append() call, but I have
+			// found the current code to produce the most accurate transcription of keypresses.
 			t -= typeSpeedMs
 		case token.SLEEP:
 			tArg, err := time.ParseDuration(cmd.Args)
