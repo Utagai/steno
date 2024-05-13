@@ -26,17 +26,19 @@ func parseCmds(tapeFile string) ([]parser.Command, error) {
 	return cmds, nil
 }
 
-func writeOverlay(stream *ffmpeg.Stream, draw DrawCall, opts Options) *ffmpeg.Stream {
+func writeOverlay(stream *ffmpeg.Stream, draw DrawCall, xPos, yPos string, opts Options) *ffmpeg.Stream {
 	enableFilter := fmt.Sprintf("between(t,%f,%f)", draw.start, draw.end)
 	if draw.toEnd {
 		enableFilter = fmt.Sprintf("gte(t,%f)", draw.start)
 	}
 
-	args := ffmpeg.KwArgs{"enable": enableFilter, "fontsize": opts.fontSize, "fontcolor": opts.fontColor}
+	args := ffmpeg.KwArgs{"enable": enableFilter, "fontsize": opts.fontSize, "fontcolor": opts.fontColor, "x": xPos, "y": yPos}
 	if opts.fontConfig != "" {
 		args["fontfile"] = opts.fontConfig
 	}
 
+	// NOTE: We are specify 0, 0 as the x and y position for the text overlay but these are overriden by the x and y we specify via the ffmpeg.KwArgs
+	// above.
 	return stream.Drawtext(draw.text, 0, 0, false, args)
 }
 
@@ -52,6 +54,8 @@ type Options struct {
 	fontSize   int
 	fontColor  string
 	outputFile string
+	xPosition  string
+	yPosition  string
 	noSymbols  bool
 	verbose    bool
 }
@@ -86,7 +90,7 @@ func run(logger *slog.Logger, tapeFile, recordingFile string, opts Options) erro
 	stream := ffmpeg.Input(recordingFile)
 	for _, draw := range draws {
 		logger.Info("Drawing", slog.Any("draw call", draw))
-		stream = writeOverlay(stream, draw, opts)
+		stream = writeOverlay(stream, draw, opts.xPosition, opts.yPosition, opts)
 	}
 
 	if err := stream.Output(opts.outputFile).OverWriteOutput().Run(); err != nil {
@@ -121,6 +125,14 @@ func main() {
 	stenoCmd.Flags().StringVarP(&opts.outputFile, "output", "o", "output.mp4", "Output file to write to")
 	stenoCmd.Flags().BoolVarP(&opts.verbose, "verbose", "v", false, "Enable logging")
 	stenoCmd.Flags().BoolVar(&opts.noSymbols, "no-special-symbols", false, "Enable special symbols for keypresses")
+	// NOTE: The default value calculates the horizontal center.
+	// We use text_w in the calculation here because we must account for the width of the text we are
+	// positioning.
+	stenoCmd.Flags().StringVarP(&opts.xPosition, "x", "x", "(w-text_w)/2", "X position for text overlay for ffmpeg; defaults to center")
+	// NOTE: The default value calculates an area just above the bottom of the video.
+	// We use text_h in the calculation here because we must account for the height of the text we are
+	// positioning.
+	stenoCmd.Flags().StringVarP(&opts.yPosition, "y", "y", "h-text_h-20", "Y position for text overlay for ffmpeg; defaults to bottom (with padding)")
 
 	stenoCmd.Execute()
 }
