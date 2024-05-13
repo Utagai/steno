@@ -37,7 +37,7 @@ func parseKeyPressEvents(cmds []parser.Command) ([]KeyPressEvent, error) {
 		cmd := cmds[i]
 		switch cmd.Type {
 		case token.BACKSPACE:
-			keyPressEvents = append(keyPressEvents, KeyPressEvent{KeyDisplay: "←", WhenMS: t})
+			keyPressEvents = append(keyPressEvents, KeyPressEvent{KeyDisplay: "⌫", WhenMS: t})
 		case token.DELETE:
 			keyPressEvents = append(keyPressEvents, KeyPressEvent{KeyDisplay: "␡", WhenMS: t})
 		case token.CTRL:
