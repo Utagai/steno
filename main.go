@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -35,7 +36,7 @@ func main() {
 		Use:   "steno [tape file] [recording file]",
 		Short: "Inject keypress overlay onto a charmebracelet vhs recording",
 		Args:  cobra.ExactArgs(2),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 			if opts.verbose {
 				logger = slog.Default()
@@ -43,7 +44,10 @@ func main() {
 
 			if err := run(logger, args[0], args[1], opts); err != nil {
 				logger.Error("failed to transcribe tape", err)
+				return err
 			}
+
+			return nil
 		},
 	}
 
@@ -62,5 +66,8 @@ func main() {
 	// positioning.
 	stenoCmd.Flags().StringVarP(&opts.yPosition, "y", "y", "h-text_h-20", "Y position for text overlay for ffmpeg; defaults to bottom (with padding)")
 
-	stenoCmd.Execute()
+	if err := stenoCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
